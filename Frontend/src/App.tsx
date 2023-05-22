@@ -1,10 +1,10 @@
 import "./App.css";
-import Board from "./Components/Board";
+import WebSocketClient from "./Components/WebSocketClient";
 
 export const App = () => {
   return (
     <body>
-      <Board />
+      <WebSocketClient />
     </body>
   );
 };
