@@ -1,11 +1,9 @@
-import { User } from './UserModel';
-
 export class PayLoad {
-	constructor(method: string, clientId: string) {
+	constructor(method: string, userId: string) {
 		this.method = method;
-		this.clientId = clientId;
+		this.userId = userId;
 	}
 
 	method: string;
-	clientId: string;
+	userId: string;
 }

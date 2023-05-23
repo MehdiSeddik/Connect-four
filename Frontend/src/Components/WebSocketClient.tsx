@@ -1,32 +1,37 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function WebSocketClient() {
-    let userId: string;
-    
+    const [userId, setUserId] = useState<string>();
+    const [ws, setWebSocket] = useState();
+
     useEffect(() => {
         const ws = new WebSocket("ws://localhost:8999//");
         ws.onmessage = (message: any) => {
             const response = JSON.parse(message.data);
             console.log("response: ", response);
-            userId = response.userId;
+
+            setUserId(response.userId);
         }
-        console.log("ws: ", ws);
-        
-    })
+        setWebSocket(ws as any);
+
+
+    }, [])
+
+
+    const createMultiplayerGame = () => {
+        const payload = {
+            "method": "createMultiplayerGame",
+            "userId": userId,
+        }
+        ws.send(JSON.stringify(payload));
+
+    }
+
 
     return <div>
-        <button onClick={() => createMultiplayerGame(userId)}>Test</button>
+        <button onClick={() => createMultiplayerGame()}>CreateGame</button>
     </div>;
 }
 
-const createMultiplayerGame = (userId: string) => {
-    console.log("createMultiplayerGame");
-    
-    const payload = {
-        "method": "createMultiplayerGame",
-        "userId": userId,
-    }
 
-    console.log("payload: ", payload);
-    
-}
+
