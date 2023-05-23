@@ -4,7 +4,8 @@ import BoardSvg from "../../assets/svg.svg";
 import { Token } from "../Token/Token";
 
 export default function Board() {
-  const tokenMatrix = [
+  // const gamesInfos = useGameInfos();
+  const gameBoard = [
     [
       { player: null },
       { player: null },
@@ -13,7 +14,7 @@ export default function Board() {
       { player: null },
       { player: null },
       { player: null },
-    ], // row {player:null}
+    ], // row 0
     [
       { player: null },
       { player: null },
@@ -37,8 +38,8 @@ export default function Board() {
       { player: null },
       { player: null },
       { player: null },
-      { player: 0 },
-      { player: null },
+      { player: 1 },
+      { player: 2 },
       { player: null },
     ], // row 3
     [
@@ -46,7 +47,7 @@ export default function Board() {
       { player: null },
       { player: null },
       { player: null },
-      { player: 1 },
+      { player: null },
       { player: null },
       { player: null },
     ], // row 4
@@ -61,20 +62,14 @@ export default function Board() {
     ], // row 5
   ];
   return (
-    <div className={styles.svgWrapper}>
+    <div id="gameBoard" className={styles.svgWrapper}>
       {/* <Svg /> */}
-      <img
-        className={css`
-          position: relative;
-          z-index: 10;
-        `}
-        src={BoardSvg}
-      ></img>
+      <img className={styles.img} src={BoardSvg} />
       <div className={styles.tokens}>
-        {tokenMatrix.map((row, rowIndex) => (
-          <div className={styles.row}>
+        {gameBoard.map((row, rowIndex) => (
+          <div key={rowIndex} className={styles.row}>
             {row.map((token, columnIndex) => (
-              <Token player={token.player} />
+              <Token player={token.player} key={columnIndex} />
             ))}
           </div>
         ))}
@@ -97,12 +92,16 @@ const styles = {
   `,
   tokens: css`
     position: absolute;
-    top: 48%;
+    top: 47%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 0;
     display: flex;
     flex-direction: column;
     gap: 18px;
+  `,
+  img: css`
+    position: relative;
+    z-index: 10;
   `,
 };
