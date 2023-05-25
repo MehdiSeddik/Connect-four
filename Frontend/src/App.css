@@ -1,0 +1,18 @@
+.svgColor {
+  background-image: linear-gradient(to right, #1dd1a1, #1abc9c);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Lobster", cursive;
+  /* hide scroll bars */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.landing {
+  height: 100vh !important;
+}
