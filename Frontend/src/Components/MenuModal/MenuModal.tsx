@@ -1,46 +1,76 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useOnClickOutside } from "usehooks-ts";
 import { css } from "@emotion/css";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import SelectGame from "../SelectGame/SelectGame";
 import { SendMessage } from "react-use-websocket";
 import axios from "axios";
+import { Game } from "../../Types/GameTypes";
+import GameCode from "../GameCode/GameCode";
 type Props = {
   isOpen: boolean;
   onChange: (isOpen: boolean) => void;
   userId: string | undefined;
+  setGame: React.Dispatch<React.SetStateAction<Game>>;
+  game: Game;
 };
 
-export const MenuModal = ({ isOpen, onChange, userId }: Props) => {
+export const MenuModal = ({
+  isOpen,
+  onChange,
+  userId,
+  setGame,
+  game,
+}: Props) => {
   const ref = useRef(null);
 
   useOnClickOutside(ref, () => onChange(false));
 
   const createGame = async () => {
-    const res = await axios.post("http://localhost:8899/createGame", {
-      userId: userId,
+    const res = await axios.post("http://localhost:8899/game/new", {
+      player1Id: userId,
     });
-    console.log(res.data);
+    if (res.data.gameId && userId) {
+      setGame({
+        ...game,
+        player1: { id: userId, color: "red", name: "player1" },
+        turn: { id: userId, color: "red", name: "player1" },
+        gameId: res.data.gameId,
+        status: "waiting",
+        board: res.data.board,
+      });
+      onChange(false);
+    }
   };
+  const hasGameId = game.gameId !== undefined;
+  const [tooltipText, setTooltipText] = useState("click to copy");
 
   return (
-    <motion.div
+    <div
+      id="menu-modal"
       ref={ref}
-      onClick={() => !isOpen && onChange(!isOpen)}
-      className={styles.modalWrapper(isOpen)}
-      initial={{ opacity: 1, width: 720, height: 50 }}
-      animate={{
-        opacity: 1,
-        width: 720,
-        height: isOpen ? "auto" : 50,
+      onClick={() => {
+        !isOpen && !hasGameId && onChange(!isOpen);
+        if (!game.gameId) {
+          return;
+        }
+        setTooltipText("copied!");
+        navigator.clipboard.writeText(game.gameId);
+        setTimeout(() => {
+          setTooltipText("click to copy");
+        }, 1000);
       }}
-      whileHover={!isOpen ? { width: "auto" } : {}}
+      className={styles.modalWrapper(isOpen)}
     >
       <div className={styles.modalContainer}>
-        <span className={styles.menuText}>Menu</span>
+        {hasGameId ? (
+          <GameCode game={game} tooltipText={tooltipText} />
+        ) : (
+          <span className={styles.menuText}>Menu</span>
+        )}
         <SelectGame onCreateGame={createGame} />
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -56,16 +86,19 @@ const styles = {
     height: 100%;
     width: 100%;
     padding: 20px;
+
     padding-top: 0;
+    transition: height 0.5s, width 0.5s;
   `,
   modalWrapper: (isOpen: boolean) => css`
     background-color: #1944a1;
-    /* beautifull shadow */
     box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
     border-radius: 0 0 20px 20px;
     position: absolute;
     z-index: 100;
     top: 0;
+    opacity: 1;
+    width: 720px;
     /* border 3 px except top */
     border: 3px solid white;
     border-top: none;
@@ -73,6 +106,10 @@ const styles = {
     /* on hover, cursor */
     &:hover {
       cursor: ${!isOpen && "pointer"};
+      width: ${!isOpen && "750px"};
     }
+    height: ${isOpen ? "340px" : "50px"};
+
+    transition: height 0.5s, width 0.5s;
   `,
 };

@@ -2,88 +2,40 @@ import { css } from "@emotion/css";
 // import svg
 import BoardSvg from "../../assets/svg.svg";
 import { Token } from "../Token/Token";
-
-export default function Board() {
-  // const gamesInfos = useGameInfos();
-  const gameBoard = [
-    [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-    ], // row 0
-    [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-    ], // row 1
-    [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-    ], // row 2
-    [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: 1 },
-      { player: 2 },
-      { player: null },
-    ], // row 3
-    [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-    ], // row 4
-    [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-    ], // row 5
-  ];
+import { Game } from "../../Types/GameTypes";
+interface Props {
+  game: Game;
+}
+export default function Board({ game }: Props) {
   return (
     <div id="gameBoard" className={styles.svgWrapper}>
       {/* <Svg /> */}
       <img className={styles.img} src={BoardSvg} />
       <div className={styles.tokens}>
-        {gameBoard.map((row, rowIndex) => (
+        {game.board?.map((row, rowIndex) => (
           <div key={rowIndex} className={styles.row}>
             {row.map((token, columnIndex) => (
-              <Token player={token.player} key={columnIndex} />
+              <Token color={token.color} key={columnIndex} />
             ))}
           </div>
         ))}
       </div>
+      <div className={styles.columnOverlay}>ICI</div>
     </div>
   );
 }
 
 const styles = {
+  columnOverlay: css`
+    position: absolute;
+    top: -10px;
+  `,
   svgWrapper: css`
-    overflow: hidden;
+    position: relative;
   `,
   flex: css`
     display: flex;
+    align-items: end;
   `,
   row: css`
     display: flex;
@@ -92,16 +44,15 @@ const styles = {
   `,
   tokens: css`
     position: absolute;
-    top: 47%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 17px;
+    left: 17px;
     z-index: 0;
     display: flex;
     flex-direction: column;
     gap: 18px;
   `,
   img: css`
-    position: relative;
+    position: inherit;
     z-index: 10;
   `,
 };

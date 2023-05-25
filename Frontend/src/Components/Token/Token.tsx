@@ -1,19 +1,20 @@
 import { css } from "@emotion/css";
 
 interface Props {
-  player: number | null;
+  color?: string;
 }
-export const Token = ({ player }: Props) => {
-  return <div className={styles.token(player)} />;
+export const Token = ({ color }: Props) => {
+  return <div className={styles.token(color)} />;
 };
 
 const styles = {
-  token: (player: number | null) => css`
+  token: (color?: string) => css`
     height: 70px;
     width: 70px;
     border-radius: 50%;
     // if player is null then token is not visible
-    opacity: ${player === null ? 0 : 1};
-    background-color: ${player === 1 ? "red" : "yellow"};
+    opacity: ${color ? 1 : 0};
+    background-color: ${color ?? "transparent"};
+    z-index: 10;
   `,
 };

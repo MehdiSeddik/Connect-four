@@ -1,10 +1,5 @@
 export interface Player {
-  id: number;
-  color: PlayerColor;
+  id: string;
+  color: "red" | "yellow";
   name: string;
-}
-
-export enum PlayerColor {
-  Red = "red",
-  Yellow = "Yellow",
 }

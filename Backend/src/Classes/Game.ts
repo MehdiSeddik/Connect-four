@@ -1,67 +1,67 @@
 export class Game {
-  id: number;
+  id: string;
   Player1Id: string;
   Player2Id: string | undefined;
   turn: string = "";
 
   gameBoard = [
     [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
     ], // row 0
     [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
     ], // row 1
     [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
     ], // row 2
     [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
     ], // row 3
     [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
     ], // row 4
     [
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
-      { player: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
+      { color: null },
     ], // row 5
   ];
 
-  constructor(id: number, Player1Id: string) {
+  constructor(id: string, Player1Id: string) {
     this.id = id;
     this.Player1Id = Player1Id;
   }
@@ -80,5 +80,9 @@ export class Game {
     console.log(`Player 1 ID: ${this.Player1Id}`);
     console.log(`Player 2 ID: ${this.Player2Id}`);
     console.log(`Turn: ${this.turn}`);
+  };
+
+  getBoard = () => {
+    return this.gameBoard;
   };
 }

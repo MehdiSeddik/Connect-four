@@ -2,19 +2,22 @@ import * as express from "express";
 import * as http from "http";
 import * as WebSocket from "ws";
 import { Game } from "./Classes/Game";
-
+const cors = require("cors");
 const app = express();
 app.use(express.json());
+app.use(cors());
 const games: Game[] = [];
 
 //initialize a simple http server
 const server = http.createServer(app);
+// use c
 
 // on /newGame
 app.post("/game/new", (req, res) => {
-  let id = Math.random();
+  let id = Math.random().toString(36).substr(2, 5);
+  // generater random 5 letter code
   while (games.find((game) => game.id === id)) {
-    id = Math.random();
+    id = Math.random().toString(36).substr(2, 5);
   }
 
   const { player1Id } = req.body;
@@ -23,8 +26,7 @@ app.post("/game/new", (req, res) => {
     return;
   }
   games.push(new Game(id, player1Id));
-  console.log(games[0]);
-  res.json({ gameId: id, msg: "game created" });
+  res.json({ gameId: id, msg: "game created", board: games[0].getBoard() });
 });
 
 //initialize the WebSocket server instance

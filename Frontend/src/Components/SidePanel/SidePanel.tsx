@@ -1,5 +1,4 @@
-import React from "react";
-import { Player, PlayerColor } from "../../Types/PlayerTypes";
+import { Player } from "../../Types/PlayerTypes";
 import { css } from "@emotion/css";
 
 type Props = {
@@ -9,15 +8,14 @@ type Props = {
 export default function SidePanel({ player }: Props) {
   return (
     <div className={styles.panelWrapper(player?.color)}>
-      <span className={styles.panelText}>Player X</span>
+      <span className={styles.panelText}>{player?.name}</span>
     </div>
   );
 }
 
 const styles = {
-  panelWrapper: (playerColor?: PlayerColor) => css`
+  panelWrapper: (playerColor?: string) => css`
     height: 300px;
-    /* width take left space on flex parent */
     flex: 1;
     margin: 0px 40px;
     padding: 20px;
