@@ -4,8 +4,7 @@ import { css } from "@emotion/css";
 import Board from "./Components/Board/Board";
 import { MenuModal } from "./Components/MenuModal/MenuModal";
 import SidePanel from "./Components/SidePanel/SidePanel";
-import useWebSocket from "react-use-websocket";
-import { Game } from "./Types/GameTypes";
+import { useGame } from "./Hooks/useGame";
 export const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   useEffect(() => {
@@ -13,29 +12,21 @@ export const App = () => {
       setIsMenuOpen(true);
     }, 5500);
   }, []);
-  const [userId, setUserId] = useState<string | undefined>(undefined);
-  const { sendMessage } = useWebSocket("ws://localhost:8899", {
-    shouldReconnect: (closeEvent) => true,
-    onMessage: (message: any) => {
-      console.log(JSON.parse(message.data).userId);
-      setUserId(JSON.parse(message.data).userId ?? undefined);
-    },
-  });
 
-  const [game, setGame] = useState<Game>({});
-  console.log(game);
+  const { game, onGameUpdate, userId } = useGame();
+
   return (
     <div className="landing">
       <div className={styles.body}>
         <div className={styles.wrapper}>
           <SidePanel player={game.player1} />
           <Board game={game} />
-          <SidePanel />
+          <SidePanel player={game.player2} />
           <MenuModal
             userId={userId}
             isOpen={isMenuOpen}
             onChange={setIsMenuOpen}
-            setGame={setGame}
+            onGameUpdate={onGameUpdate}
             game={game}
           />
           {/* <button onClick={() => setIsMenuOpen((val) => !val)}>open menu</button> */}

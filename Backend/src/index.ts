@@ -1,32 +1,33 @@
 import * as express from "express";
 import * as http from "http";
 import * as WebSocket from "ws";
-import { Game } from "./Classes/Game";
+import { GameInstance } from "./Classes/Game";
 const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(cors());
-const games: Game[] = [];
 
 //initialize a simple http server
 const server = http.createServer(app);
 // use c
+const game = new GameInstance();
+// every 10 sec, log the game
+setInterval(() => {
+  console.log(game.exportGame());
+}, 10000);
 
 // on /newGame
 app.post("/game/new", (req, res) => {
   let id = Math.random().toString(36).substr(2, 5);
-  // generater random 5 letter code
-  while (games.find((game) => game.id === id)) {
-    id = Math.random().toString(36).substr(2, 5);
-  }
+  // generate random 5 letter code
 
   const { player1Id } = req.body;
   if (!player1Id) {
     res.send("player 1 Id is required");
     return;
   }
-  games.push(new Game(id, player1Id));
-  res.json({ gameId: id, msg: "game created", board: games[0].getBoard() });
+  game.initPlayer1(player1Id);
+  res.json(game.exportGame());
 });
 
 //initialize the WebSocket server instance

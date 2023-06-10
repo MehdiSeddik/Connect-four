@@ -2,7 +2,7 @@ import { css } from "@emotion/css";
 // import svg
 import BoardSvg from "../../assets/svg.svg";
 import { Token } from "../Token/Token";
-import { Game } from "../../Types/GameTypes";
+import { Game } from "../../Types/types";
 interface Props {
   game: Game;
 }
