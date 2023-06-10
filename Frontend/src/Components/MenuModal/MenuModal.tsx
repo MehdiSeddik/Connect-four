@@ -1,17 +1,15 @@
-import { AnimatePresence, motion } from "framer-motion";
 import { useOnClickOutside } from "usehooks-ts";
 import { css } from "@emotion/css";
 import { useRef, useState } from "react";
 import SelectGame from "../SelectGame/SelectGame";
-import { SendMessage } from "react-use-websocket";
 import axios from "axios";
-import { Game } from "../../Types/GameTypes";
+import { Game } from "../../Types/types";
 import GameCode from "../GameCode/GameCode";
 type Props = {
   isOpen: boolean;
   onChange: (isOpen: boolean) => void;
   userId: string | undefined;
-  setGame: React.Dispatch<React.SetStateAction<Game>>;
+  onGameUpdate: (updated: Partial<Game>) => void;
   game: Game;
 };
 
@@ -19,7 +17,7 @@ export const MenuModal = ({
   isOpen,
   onChange,
   userId,
-  setGame,
+  onGameUpdate,
   game,
 }: Props) => {
   const ref = useRef(null);
@@ -30,15 +28,8 @@ export const MenuModal = ({
     const res = await axios.post("http://localhost:8899/game/new", {
       player1Id: userId,
     });
-    if (res.data.gameId && userId) {
-      setGame({
-        ...game,
-        player1: { id: userId, color: "red", name: "player1" },
-        turn: { id: userId, color: "red", name: "player1" },
-        gameId: res.data.gameId,
-        status: "waiting",
-        board: res.data.board,
-      });
+    if (res.data && userId) {
+      onGameUpdate(res.data);
       onChange(false);
     }
   };

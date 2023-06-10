@@ -1,5 +1,5 @@
 import React from "react";
-import { Game } from "../../Types/GameTypes";
+import { Game } from "../../Types/types";
 import { css } from "@emotion/css";
 import { Tooltip } from "@mui/material";
 
