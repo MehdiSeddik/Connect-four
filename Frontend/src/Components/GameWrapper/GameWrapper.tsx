@@ -6,6 +6,9 @@ export interface GameContextProps {
   game: Game;
   onGameUpdate: (updated: Partial<Game>) => void;
   userId?: string;
+  isPlayer1?: boolean;
+  setIsPlayer1?: (isPlayer1: boolean) => void;
+  sendMessage?: (message: string) => void;
 }
 
 export const gameContext = createContext<GameContextProps | undefined>(
@@ -18,6 +21,7 @@ interface Props {
 const GameWrapper = ({ children }: Props): JSX.Element => {
   const [game, setGame] = useState<Game>({});
   const [userId, setUserId] = useState<string | undefined>();
+  const [isPlayer1, setIsPlayer1] = useState<boolean | undefined>();
   // each time game change, console.log(game)
   const { sendMessage } = useWebSocket("ws://localhost:8899", {
     shouldReconnect: (closeEvent) => true,
@@ -27,6 +31,10 @@ const GameWrapper = ({ children }: Props): JSX.Element => {
       }
       if (JSON.parse(message.data).userId) {
         setUserId(JSON.parse(message.data).userId);
+      }
+      if (JSON.parse(message.data).game) {
+        console.log("game received");
+        setGame(JSON.parse(message.data).game);
       }
     },
   });
@@ -38,7 +46,16 @@ const GameWrapper = ({ children }: Props): JSX.Element => {
     setGame({ ...game, ...updated });
   };
   return (
-    <gameContext.Provider value={{ game, onGameUpdate, userId }}>
+    <gameContext.Provider
+      value={{
+        game,
+        onGameUpdate,
+        userId,
+        sendMessage,
+        isPlayer1,
+        setIsPlayer1,
+      }}
+    >
       {children}
     </gameContext.Provider>
   );

@@ -13,22 +13,10 @@ const server = http.createServer(app);
 const game = new GameInstance();
 // every 10 sec, log the game
 setInterval(() => {
-  console.log(game.exportGame());
-}, 10000);
-
-// on /newGame
-app.post("/game/new", (req, res) => {
-  let id = Math.random().toString(36).substr(2, 5);
-  // generate random 5 letter code
-
-  const { player1Id } = req.body;
-  if (!player1Id) {
-    res.send("player 1 Id is required");
-    return;
-  }
-  game.initPlayer1(player1Id);
-  res.json(game.exportGame());
-});
+  const { gameId, player1, player2, status, turn, countDown } =
+    game.exportGame();
+  console.log({ gameId, player1, player2, status, turn, countDown });
+}, 5000);
 
 //initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server });
@@ -40,7 +28,37 @@ wss.on("connection", (ws: WebSocket, req) => {
     console.log("received: %s", message);
     ws.send(`Hello, you sent -> ${message}`);
   });
+  // on /newGame
+  app.post("/game/new", (req, res) => {
+    let id = Math.random().toString(36).substr(2, 5);
+    // generate random 5 letter code
 
+    const { player1Id } = req.body;
+    if (!player1Id) {
+      res.send("player 1 Id is required");
+      return;
+    }
+    game.initPlayer1(player1Id);
+    // send via websocket to player 1
+    res.json(game.exportGame());
+  });
+
+  app.post("/game/join", (req, res) => {
+    const { gameId, player2Id } = req.body;
+    const isIdValid = game.checkId(gameId);
+    if (!isIdValid) {
+      res.send(false);
+      return;
+    }
+    game.initPlayer2(player2Id);
+    // boradcast to player 1 and 2 that game is ready
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ game: game.exportGame() }));
+      }
+    });
+    res.json(game.exportGame());
+  });
   // send json
   ws.send(JSON.stringify({ userId: id }));
 });

@@ -5,6 +5,7 @@ import SelectGame from "../SelectGame/SelectGame";
 import axios from "axios";
 import { Game } from "../../Types/types";
 import GameCode from "../GameCode/GameCode";
+import { Input } from "@mui/material";
 type Props = {
   isOpen: boolean;
   onChange: (isOpen: boolean) => void;
@@ -33,8 +34,27 @@ export const MenuModal = ({
       onChange(false);
     }
   };
+
+  const joinGame = async (gameId: string) => {
+    const res = await axios.post("http://localhost:8899/game/join", {
+      gameId,
+      player2Id: userId,
+    });
+    if (res.data) {
+      onGameUpdate(res.data);
+      onChange(false);
+      setIsJoining(false);
+    }
+  };
   const hasGameId = game.gameId !== undefined;
   const [tooltipText, setTooltipText] = useState("click to copy");
+  const [isJoining, setIsJoining] = useState(false);
+  const [idInput, setIdInput] = useState("");
+
+  const handleChange = (e: any) => {
+    setIdInput(e.target.value);
+    joinGame(e.target.value);
+  };
 
   return (
     <div
@@ -51,7 +71,7 @@ export const MenuModal = ({
           setTooltipText("click to copy");
         }, 1000);
       }}
-      className={styles.modalWrapper(isOpen)}
+      className={styles.modalWrapper(isOpen, isJoining)}
     >
       <div className={styles.modalContainer}>
         {hasGameId ? (
@@ -59,7 +79,17 @@ export const MenuModal = ({
         ) : (
           <span className={styles.menuText}>Menu</span>
         )}
-        <SelectGame onCreateGame={createGame} />
+        {isJoining ? (
+          <>
+            <span className={styles.text}>Enter game id :</span>
+            <Input value={idInput} onChange={handleChange} />
+          </>
+        ) : (
+          <SelectGame
+            onCreateGame={createGame}
+            onJoinGame={() => setIsJoining(true)}
+          />
+        )}
       </div>
     </div>
   );
@@ -73,6 +103,11 @@ const styles = {
     display: flex;
     align-items: center;
   `,
+  text: css`
+    color: white;
+    font-size: 20px;
+    margin-right: 10px;
+  `,
   modalContainer: css`
     height: 100%;
     width: 100%;
@@ -81,7 +116,7 @@ const styles = {
     padding-top: 0;
     transition: height 0.5s, width 0.5s;
   `,
-  modalWrapper: (isOpen: boolean) => css`
+  modalWrapper: (isOpen: boolean, isJoining: boolean) => css`
     background-color: #1944a1;
     box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
     border-radius: 0 0 20px 20px;
@@ -100,6 +135,7 @@ const styles = {
       width: ${!isOpen && "750px"};
     }
     height: ${isOpen ? "340px" : "50px"};
+    height: ${isJoining && "100px"};
 
     transition: height 0.5s, width 0.5s;
   `,

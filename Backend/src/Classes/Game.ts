@@ -5,6 +5,22 @@ export class GameInstance {
   player1?: Player;
   player2?: Player;
   turn: string = "";
+  status?: "waiting" | "playing" | "finished";
+  countDown: number = 30;
+
+  // if game status is playing, start count down
+
+  setCountDown = () => {
+    const interval = setInterval(() => {
+      this.countDown--;
+      if (this.countDown === 0) {
+        clearInterval(interval);
+        this.turn =
+          this.turn === this.player1!.id ? this.player2!.id : this.player1!.id;
+        this.countDown = 60;
+      }
+    }, 1000);
+  };
 
   gameBoard = [
     [
@@ -64,14 +80,17 @@ export class GameInstance {
   ];
 
   constructor() {
-    this.id = "0";
+    this.id = "123456";
   }
+
+  checkId = (id: string) => id === this.id;
 
   initPlayer1 = (id: string) => {
     this.player1 = {
       id: id,
       color: "red",
     };
+    this.status = "waiting";
   };
 
   initPlayer2 = (id: string) => {
@@ -79,6 +98,8 @@ export class GameInstance {
       id: id,
       color: "yellow",
     };
+    this.status = "playing";
+    this.turn = this.player1!.id;
   };
 
   initGame = () => {
@@ -109,6 +130,8 @@ export class GameInstance {
       player2: this.player2,
       turn: this.turn,
       board: this.gameBoard,
+      status: this.status,
+      countDown: this.countDown,
     };
   };
 
