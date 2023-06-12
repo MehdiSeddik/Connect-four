@@ -6,9 +6,10 @@ export interface Game {
   turn?: string;
   board?: Board;
   countDown?: number;
+  winner?: Player;
 }
 
-export type Board = { color: "yellow" | "red" | null }[][];
+export type Board = { color: "yellow" | "red" | "none" }[][];
 
 export interface Player {
   id: string;

@@ -1,41 +1,31 @@
 import { css } from "@emotion/css";
 // import svg
-import BoardSvg from "../../assets/svg.svg";
 import { Token } from "../Token/Token";
 import { Game } from "../../Types/types";
-import { useState, useRef, useEffect } from "react";
-import ColumnSelector from "../ColumnSelector/ColumnSelector";
 import { useGame } from "../../Hooks/useGame";
-import axios from "axios";
 interface Props {
-  game: Game;
+  onColumnSelect: (column: number) => void;
+  onColumnClick: (column: number) => void;
+  selectedColumn: number;
 }
-export default function Board({ game }: Props) {
-  const [hoveredColumn, setHoveredColumn] = useState(0);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const { isPlayer1 } = useGame();
-
-  const handleColumnClick = async (column: number) => {
-    await axios.post("http://localhost:8899/game/drop", {
-      column,
-      color: isPlayer1 ? "red" : "yellow",
-    });
-  };
-
+export default function ColumnSelector({
+  onColumnSelect,
+  selectedColumn,
+  onColumnClick,
+}: Props) {
+  const { game, isYourTurn } = useGame();
   return (
     <div id="gameBoard" className={styles.svgWrapper}>
-      {/* <Svg /> */}
-      <ColumnSelector
-        onColumnSelect={(column) => setHoveredColumn(column)}
-        selectedColumn={hoveredColumn}
-        onColumnClick={handleColumnClick}
-      />
-      <img ref={imgRef} className={styles.img} src={BoardSvg} />
+      {/* <div className={styles.columnOverlay}>ICI</div> */}
       <div className={styles.tokens}>
         {game.board?.map((row, rowIndex) => (
           <div key={rowIndex} className={styles.row}>
             {row.map((token, columnIndex) => (
-              <Token color={token.color} key={columnIndex} />
+              <Token
+                onHover={() => onColumnSelect(columnIndex)}
+                onClick={() => isYourTurn && onColumnClick(columnIndex)}
+                key={columnIndex}
+              />
             ))}
           </div>
         ))}
@@ -51,6 +41,7 @@ const styles = {
   `,
   svgWrapper: css`
     position: relative;
+    z-index: 50;
   `,
   flex: css`
     display: flex;

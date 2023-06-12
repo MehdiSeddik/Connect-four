@@ -1,4 +1,6 @@
-import { Game, Player } from "../types";
+import ws = require("ws");
+import { Game, Player, Board } from "../types";
+import * as WebSocket from "ws";
 
 export class GameInstance {
   id: string;
@@ -7,81 +9,99 @@ export class GameInstance {
   turn: string = "";
   status?: "waiting" | "playing" | "finished";
   countDown: number = 30;
+  wss: ws.Server;
+  winner?: Player;
 
   // if game status is playing, start count down
 
-  setCountDown = () => {
+  startCountdown = () => {
     const interval = setInterval(() => {
       this.countDown--;
+      this.wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ game: this.exportGame() }));
+        }
+      });
       if (this.countDown === 0) {
         clearInterval(interval);
         this.turn =
           this.turn === this.player1!.id ? this.player2!.id : this.player1!.id;
-        this.countDown = 60;
+        this.countDown = 30;
+        this.startCountdown();
       }
-    }, 1000);
+      if (this.status === "finished") {
+        clearInterval(interval);
+      }
+    }, 1200);
   };
 
-  gameBoard = [
+  gameBoard: Board = [
     [
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
     ], // row 0
     [
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
     ], // row 1
     [
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
     ], // row 2
     [
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
     ], // row 3
     [
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
     ], // row 4
     [
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
-      { color: null },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
+      { color: "none" },
     ], // row 5
   ];
 
-  constructor() {
+  constructor(wss: ws.Server) {
     this.id = "123456";
+    this.wss = wss;
   }
+
+  start = () => {
+    this.startCountdown();
+  };
+  stop = () => {
+    this.status = "finished";
+  };
 
   checkId = (id: string) => id === this.id;
 
@@ -100,17 +120,6 @@ export class GameInstance {
     };
     this.status = "playing";
     this.turn = this.player1!.id;
-  };
-
-  initGame = () => {
-    // randomly set turn to player1 id or to player2 id
-    if (!this.player1 || !this.player2) {
-      return;
-    }
-    this.turn =
-      Math.floor(Math.random() * 2) + 1 === 1
-        ? this.player1.id
-        : this.player2.id;
   };
 
   logGameStatus = () => {
@@ -132,6 +141,7 @@ export class GameInstance {
       board: this.gameBoard,
       status: this.status,
       countDown: this.countDown,
+      winner: this.winner,
     };
   };
 
@@ -141,5 +151,98 @@ export class GameInstance {
 
   getBoard = () => {
     return this.gameBoard;
+  };
+  // if there is a winner, return the color of the winner ( connect four )
+  checkWinner(): "red" | "yellow" | "none" {
+    const rows = this.gameBoard.length;
+    const columns = this.gameBoard[0].length;
+
+    // Check horizontally
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < columns - 3; col++) {
+        const color = this.gameBoard[row][col].color;
+        if (
+          color !== "none" &&
+          color === this.gameBoard[row][col + 1].color &&
+          color === this.gameBoard[row][col + 2].color &&
+          color === this.gameBoard[row][col + 3].color
+        ) {
+          return color;
+        }
+      }
+    }
+
+    // Check vertically
+    for (let col = 0; col < columns; col++) {
+      for (let row = 0; row < rows - 3; row++) {
+        const color = this.gameBoard[row][col].color;
+        if (
+          color !== "none" &&
+          color === this.gameBoard[row + 1][col].color &&
+          color === this.gameBoard[row + 2][col].color &&
+          color === this.gameBoard[row + 3][col].color
+        ) {
+          return color;
+        }
+      }
+    }
+
+    // Check diagonally (top-left to bottom-right)
+    for (let row = 0; row < rows - 3; row++) {
+      for (let col = 0; col < columns - 3; col++) {
+        const color = this.gameBoard[row][col].color;
+        if (
+          color !== "none" &&
+          color === this.gameBoard[row + 1][col + 1].color &&
+          color === this.gameBoard[row + 2][col + 2].color &&
+          color === this.gameBoard[row + 3][col + 3].color
+        ) {
+          return color;
+        }
+      }
+    }
+
+    // Check diagonally (top-right to bottom-left)
+    for (let row = 0; row < rows - 3; row++) {
+      for (let col = columns - 1; col >= 3; col--) {
+        const color = this.gameBoard[row][col].color;
+        if (
+          color !== "none" &&
+          color === this.gameBoard[row + 1][col - 1].color &&
+          color === this.gameBoard[row + 2][col - 2].color &&
+          color === this.gameBoard[row + 3][col - 3].color
+        ) {
+          return color;
+        }
+      }
+    }
+
+    return "none"; // No winner
+  }
+
+  dropPiece = (column: number, color: "yellow" | "red" | "none") => {
+    let row = 5;
+    while (this.gameBoard[row][column].color !== "none") {
+      row--;
+    }
+    this.gameBoard[row][column].color = color;
+
+    // check if there is a winner
+    const winner = this.checkWinner();
+
+    if (winner !== "none") {
+      console.log("winner found");
+      this.winner = winner === "red" ? this.player1 : this.player2;
+      console.log(winner);
+      this.status = "finished";
+      this.wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ game: this.exportGame() }));
+        }
+      });
+    }
+    this.turn =
+      this.turn === this.player1!.id ? this.player2!.id : this.player1!.id;
+    this.countDown = 30;
   };
 }

@@ -10,16 +10,15 @@ app.use(cors());
 //initialize a simple http server
 const server = http.createServer(app);
 // use c
-const game = new GameInstance();
-// every 10 sec, log the game
-setInterval(() => {
-  const { gameId, player1, player2, status, turn, countDown } =
-    game.exportGame();
-  console.log({ gameId, player1, player2, status, turn, countDown });
-}, 5000);
-
 //initialize the WebSocket server instance
 const wss = new WebSocket.Server({ server });
+const game = new GameInstance(wss);
+// every 10 sec, log the game
+setInterval(() => {
+  const { gameId, player1, player2, status, turn, countDown, winner } =
+    game.exportGame();
+  console.log({ gameId, player1, player2, status, turn, countDown, winner });
+}, 1000);
 
 wss.on("connection", (ws: WebSocket, req) => {
   const id = req.headers["sec-websocket-key"];
@@ -40,6 +39,13 @@ wss.on("connection", (ws: WebSocket, req) => {
     }
     game.initPlayer1(player1Id);
     // send via websocket to player 1
+    // return success code
+    res.status(201).json(game.exportGame());
+  });
+
+  app.post("/game/drop", (req, res) => {
+    const { column, color } = req.body;
+    game.dropPiece(column, color);
     res.json(game.exportGame());
   });
 
@@ -51,6 +57,7 @@ wss.on("connection", (ws: WebSocket, req) => {
       return;
     }
     game.initPlayer2(player2Id);
+    game.start();
     // boradcast to player 1 and 2 that game is ready
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {

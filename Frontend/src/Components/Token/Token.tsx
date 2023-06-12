@@ -2,9 +2,17 @@ import { css } from "@emotion/css";
 
 interface Props {
   color?: string;
+  onHover?: () => void;
+  onClick?: () => void;
 }
-export const Token = ({ color }: Props) => {
-  return <div className={styles.token(color)} />;
+export const Token = ({ color, onHover, onClick }: Props) => {
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={onHover}
+      className={styles.token(color)}
+    />
+  );
 };
 
 const styles = {
@@ -12,7 +20,6 @@ const styles = {
     height: 70px;
     width: 70px;
     border-radius: 50%;
-    // if player is null then token is not visible
     opacity: ${color ? 1 : 0};
     background-color: ${color ?? "transparent"};
     z-index: 10;
