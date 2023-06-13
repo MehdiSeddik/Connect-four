@@ -3,13 +3,12 @@ import { Game, Player } from "../../Types/types";
 import useWebSocket from "react-use-websocket";
 
 export interface GameContextProps {
-  game: Game;
-  onGameUpdate: (updated: Partial<Game>) => void;
+  game?: Game;
+  winner?: Player;
   userId?: string;
   isPlayer1?: boolean;
-  sendMessage?: (message: string) => void;
   isYourTurn?: boolean;
-  winner?: Player;
+  onGameUpdate: (updated: Game) => void;
 }
 
 export const gameContext = createContext<GameContextProps | undefined>(
@@ -19,12 +18,12 @@ export const gameContext = createContext<GameContextProps | undefined>(
 interface Props {
   children?: ReactNode;
 }
-const GameWrapper = ({ children }: Props): JSX.Element => {
-  const [game, setGame] = useState<Game>({});
+const GameWrapper = ({ children }: Props) => {
+  const [game, setGame] = useState<Game>();
   const [userId, setUserId] = useState<string | undefined>();
 
-  const { sendMessage } = useWebSocket("ws://localhost:8899", {
-    shouldReconnect: (closeEvent) => true,
+  useWebSocket("ws://localhost:8899", {
+    shouldReconnect: () => true,
     onMessage: (message: any) => {
       if (!message.data) {
         return;
@@ -38,8 +37,8 @@ const GameWrapper = ({ children }: Props): JSX.Element => {
     },
   });
 
-  const onGameUpdate = (updated: Partial<Game>) => {
-    setGame({ ...game, ...updated });
+  const onGameUpdate = (updated: Game) => {
+    setGame(updated);
   };
   return (
     <gameContext.Provider
@@ -47,10 +46,9 @@ const GameWrapper = ({ children }: Props): JSX.Element => {
         game,
         onGameUpdate,
         userId,
-        sendMessage,
-        isPlayer1: game.player1?.id === userId,
-        isYourTurn: game.turn === userId,
-        winner: game.winner,
+        isPlayer1: game && game.player1?.id === userId,
+        isYourTurn: game && game.turn === userId,
+        winner: game && game.winner,
       }}
     >
       {children}

@@ -3,27 +3,25 @@ import { css } from "@emotion/css";
 import { useRef, useState } from "react";
 import SelectGame from "../SelectGame/SelectGame";
 import axios from "axios";
-import { Game } from "../../Types/types";
 import GameCode from "../GameCode/GameCode";
 import { Box, CircularProgress, Input, Typography } from "@mui/material";
 import { useGame } from "../../Hooks/useGame";
 type Props = {
   isOpen: boolean;
   onChange: (isOpen: boolean) => void;
-  userId: string | undefined;
-  onGameUpdate: (updated: Partial<Game>) => void;
 };
 
-export const MenuModal = ({
-  isOpen,
-  onChange,
-  userId,
-  onGameUpdate,
-}: Props) => {
-  const ref = useRef(null);
+export const MenuModal = ({ isOpen, onChange }: Props) => {
+  const modalRef = useRef(null);
+  const [idInput, setIdInput] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
+  useOnClickOutside(modalRef, () => onChange(false));
+  const [tooltipText, setTooltipText] = useState("click to copy");
+  const { onGameUpdate, game, isPlayer1, isYourTurn, winner, userId } =
+    useGame();
+  const isGameInitialized = game && game.gameId;
+  const timerValue = game ? Math.round((game.countDown * 100) / 30) : 0;
 
-  useOnClickOutside(ref, () => onChange(false));
-  const gameContext = useGame();
   const createGame = async () => {
     const res = await axios.post("http://localhost:8899/game/new", {
       player1Id: userId,
@@ -45,56 +43,45 @@ export const MenuModal = ({
       setIsJoining(false);
     }
   };
-  const hasGameId = gameContext.game.gameId !== undefined;
-  const [tooltipText, setTooltipText] = useState("click to copy");
-  const [isJoining, setIsJoining] = useState(false);
-  const [idInput, setIdInput] = useState("");
 
-  const handleChange = (e: any) => {
+  const handleCodeChange = (e: any) => {
     setIdInput(e.target.value);
     joinGame(e.target.value);
   };
 
-  const timerValue = gameContext.game.countDown
-    ? Math.round((gameContext.game.countDown * 100) / 30)
-    : 0;
+  const handleModalClick = () => {
+    !isOpen && !isGameInitialized && onChange(!isOpen);
+    if (!isGameInitialized) {
+      return;
+    }
+    setTooltipText("copied!");
+    navigator.clipboard.writeText(game.gameId);
+    setTimeout(() => {
+      setTooltipText("click to copy");
+    }, 1000);
+  };
 
   return (
     <div
-      id="menu-modal"
-      ref={ref}
-      onClick={() => {
-        !isOpen && !hasGameId && onChange(!isOpen);
-        if (!gameContext.game.gameId) {
-          return;
-        }
-        setTooltipText("copied!");
-        navigator.clipboard.writeText(gameContext.game.gameId);
-        setTimeout(() => {
-          setTooltipText("click to copy");
-        }, 1000);
-      }}
+      ref={modalRef}
+      onClick={handleModalClick}
       className={styles.modalWrapper(isOpen, isJoining)}
     >
-      {gameContext.game.winner ? (
-        <div className={styles.modalContainer}>
-          Winner is {gameContext.winner?.color}
-        </div>
+      {isGameInitialized && game.winner ? (
+        <div className={styles.modalContainer}>Winner is {winner!.color}</div>
       ) : (
         <div className={styles.modalContainer}>
-          {hasGameId ? (
+          {isGameInitialized ? (
             <div className={styles.secondWrapper}>
-              <GameCode game={gameContext.game} tooltipText={tooltipText} />
+              <GameCode game={game} tooltipText={tooltipText} />
               <div className={styles.infos}>
-                <span className={styles.youPlay(gameContext.isPlayer1)}>
-                  {`you play ${
-                    gameContext.isPlayer1 ? "red" : "yellow"
-                  } and it's ${
-                    gameContext.isYourTurn ? "your Turn" : "the opponent's Turn"
+                <span className={styles.white}>
+                  {`you play ${isPlayer1 ? "red" : "yellow"} and it's ${
+                    isYourTurn ? "your Turn" : "the opponent's Turn"
                   } `}
                 </span>
               </div>
-              {gameContext.game.status === "playing" && (
+              {game.status === "playing" && (
                 <Box sx={{ position: "relative", display: "inline-flex" }}>
                   <CircularProgress
                     variant="determinate"
@@ -118,7 +105,7 @@ export const MenuModal = ({
                       component="div"
                       color="text.secondary"
                     >
-                      {gameContext.game.countDown}
+                      {game.countDown}
                     </Typography>
                   </Box>
                 </Box>
@@ -131,7 +118,7 @@ export const MenuModal = ({
           {isJoining ? (
             <div className={styles.secondWrapper}>
               <span className={styles.text}>Enter game id :</span>
-              <Input value={idInput} onChange={handleChange} />
+              <Input value={idInput} onChange={handleCodeChange} />
             </div>
           ) : (
             <SelectGame
@@ -146,9 +133,8 @@ export const MenuModal = ({
 };
 
 const styles = {
-  youPlay: (isPlayer1: boolean | undefined) => css`
+  white: css`
     color: white;
-    /* white background */
   `,
   infos: css`
     margin-left: auto;
@@ -162,7 +148,6 @@ const styles = {
   menuText: css`
     color: white;
     font-size: 30px;
-    /* center */
     display: flex;
     align-items: center;
   `,
