@@ -13,14 +13,14 @@ flowchart TD
 
   App
   Preloader
-  GW["`GameWrapper
-  (context provider)`"]
+  GW["GameWrapper
+  (context provider)"]
   Board
   MenuModal
   Tokens.map
   ColumnSelector
-  Image["`Image
-  (Board.png)`"]
+  Image["Image
+  (Board.png)"]
 
 
   App --> GW
