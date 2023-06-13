@@ -1,7 +1,6 @@
 import { css } from "@emotion/css";
 // import svg
 import { Token } from "../Token/Token";
-import { Game } from "../../Types/types";
 import { useGame } from "../../Hooks/useGame";
 interface Props {
   onColumnSelect: (column: number) => void;
@@ -10,25 +9,25 @@ interface Props {
 }
 export default function ColumnSelector({
   onColumnSelect,
-  selectedColumn,
   onColumnClick,
 }: Props) {
   const { game, isYourTurn } = useGame();
+  const isGameInitialized = game && game.gameId;
   return (
     <div id="gameBoard" className={styles.svgWrapper}>
-      {/* <div className={styles.columnOverlay}>ICI</div> */}
       <div className={styles.tokens}>
-        {game.board?.map((row, rowIndex) => (
-          <div key={rowIndex} className={styles.row}>
-            {row.map((token, columnIndex) => (
-              <Token
-                onHover={() => onColumnSelect(columnIndex)}
-                onClick={() => isYourTurn && onColumnClick(columnIndex)}
-                key={columnIndex}
-              />
-            ))}
-          </div>
-        ))}
+        {isGameInitialized &&
+          game.board?.map((row, rowIndex) => (
+            <div key={rowIndex} className={styles.row}>
+              {row.map((_, columnIndex) => (
+                <Token
+                  key={columnIndex}
+                  onHover={() => onColumnSelect(columnIndex)}
+                  onClick={() => isYourTurn && onColumnClick(columnIndex)}
+                />
+              ))}
+            </div>
+          ))}
       </div>
     </div>
   );
