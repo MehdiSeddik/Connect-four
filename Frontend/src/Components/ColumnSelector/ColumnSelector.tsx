@@ -1,36 +1,30 @@
 import { css } from "@emotion/css";
-import BoardSvg from "../../assets/svg.svg";
+// import svg
 import { Token } from "../Token/Token";
-import { useState } from "react";
-import ColumnSelector from "../ColumnSelector/ColumnSelector";
 import { useGame } from "../../Hooks/useGame";
-import axios from "axios";
-export default function Board() {
-  const [hoveredColumn, setHoveredColumn] = useState(0);
-  const { isPlayer1, game } = useGame();
+interface Props {
+  onColumnSelect: (column: number) => void;
+  onColumnClick: (column: number) => void;
+  selectedColumn: number;
+}
+export default function ColumnSelector({
+  onColumnSelect,
+  onColumnClick,
+}: Props) {
+  const { game, isYourTurn } = useGame();
   const isGameInitialized = game && game.gameId;
-
-  const handleColumnClick = async (column: number) => {
-    await axios.post("http://localhost:8899/game/drop", {
-      column,
-      color: isPlayer1 ? "red" : "yellow",
-    });
-  };
-
   return (
     <div id="gameBoard" className={styles.svgWrapper}>
-      <ColumnSelector
-        onColumnSelect={(column) => setHoveredColumn(column)}
-        selectedColumn={hoveredColumn}
-        onColumnClick={handleColumnClick}
-      />
-      <img className={styles.img} src={BoardSvg} />
       <div className={styles.tokens}>
         {isGameInitialized &&
-          game.board.map((row, rowIndex) => (
+          game.board?.map((row, rowIndex) => (
             <div key={rowIndex} className={styles.row}>
-              {row.map((token, columnIndex) => (
-                <Token color={token.color} key={columnIndex} />
+              {row.map((_, columnIndex) => (
+                <Token
+                  key={columnIndex}
+                  onHover={() => onColumnSelect(columnIndex)}
+                  onClick={() => isYourTurn && onColumnClick(columnIndex)}
+                />
               ))}
             </div>
           ))}
@@ -46,6 +40,7 @@ const styles = {
   `,
   svgWrapper: css`
     position: relative;
+    z-index: 50;
   `,
   flex: css`
     display: flex;

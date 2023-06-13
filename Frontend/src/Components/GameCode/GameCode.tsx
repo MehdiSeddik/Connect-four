@@ -46,6 +46,5 @@ const styles = {
     font-size: 30px;
     color: white;
     gap: 10px;
-    padding: 20px;
   `,
 };

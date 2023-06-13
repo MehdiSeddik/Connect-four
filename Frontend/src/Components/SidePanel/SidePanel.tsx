@@ -1,5 +1,5 @@
-import { Player } from "../../Types/PlayerTypes";
 import { css } from "@emotion/css";
+import { Player } from "../../Types/types";
 
 type Props = {
   player?: Player;
