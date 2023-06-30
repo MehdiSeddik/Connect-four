@@ -17,15 +17,27 @@ const game = new GameInstance(wss);
 setInterval(() => {
   const { gameId, player1, player2, status, turn, countDown, winner } =
     game.exportGame();
-  console.log({ gameId, player1, player2, status, turn, countDown, winner });
+  // console.log({ gameId, player1, player2, status, turn, countDown, winner });
 }, 1000);
 
 wss.on("connection", (ws: WebSocket, req) => {
   const id = req.headers["sec-websocket-key"];
   console.log("new user connected: ", id);
   ws.on("message", (message: string) => {
-    console.log("received: %s", message);
-    ws.send(`Hello, you sent -> ${message}`);
+    const jsonMessage = JSON.parse(message);
+    switch (jsonMessage.type) {
+      case "drop":
+        console.log("received: ", jsonMessage);
+        const { column, color } = jsonMessage;
+        game.dropPiece(column, color);
+        wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ game: game.exportGame() }));
+          }
+        });
+        break;
+
+    }
   });
   // on /newGame
   app.post("/game/new", (req, res) => {
@@ -41,12 +53,6 @@ wss.on("connection", (ws: WebSocket, req) => {
     // send via websocket to player 1
     // return success code
     res.status(201).json(game.exportGame());
-  });
-
-  app.post("/game/drop", (req, res) => {
-    const { column, color } = req.body;
-    game.dropPiece(column, color);
-    res.json(game.exportGame());
   });
 
   app.post("/game/join", (req, res) => {

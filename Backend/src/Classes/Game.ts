@@ -2,6 +2,62 @@ import ws = require("ws");
 import { Game, Player, Board } from "../types";
 import * as WebSocket from "ws";
 
+const defaultBoard: Board = [
+  [
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+  ], // row 0
+  [
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+  ], // row 1
+  [
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+  ], // row 2
+  [
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+  ], // row 3
+  [
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+  ], // row 4
+  [
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+    { color: "none" },
+  ], // row 5
+];
+
 export class GameInstance {
   id: string;
   player1?: Player;
@@ -35,61 +91,7 @@ export class GameInstance {
     }, 1200);
   };
 
-  gameBoard: Board = [
-    [
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-    ], // row 0
-    [
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-    ], // row 1
-    [
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-    ], // row 2
-    [
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-    ], // row 3
-    [
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-    ], // row 4
-    [
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-      { color: "none" },
-    ], // row 5
-  ];
+  gameBoard = defaultBoard;
 
   constructor(wss: ws.Server) {
     this.id = "123456";
@@ -220,16 +222,23 @@ export class GameInstance {
     return "none"; // No winner
   }
 
+  resetGame = () =>{
+
+  }
+
   dropPiece = (column: number, color: "yellow" | "red" | "none") => {
+    if(this.winner) {
+      return;
+    }
     let row = 5;
     while (this.gameBoard[row][column].color !== "none") {
       row--;
     }
-    this.gameBoard[row][column].color = color;
-
     // check if there is a winner
+    
+    this.gameBoard[row][column].color = color; 
+    
     const winner = this.checkWinner();
-
     if (winner !== "none") {
       console.log("winner found");
       this.winner = winner === "red" ? this.player1 : this.player2;
@@ -240,6 +249,7 @@ export class GameInstance {
           client.send(JSON.stringify({ game: this.exportGame() }));
         }
       });
+      return;
     }
     this.turn =
       this.turn === this.player1!.id ? this.player2!.id : this.player1!.id;

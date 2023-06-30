@@ -61,11 +61,13 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
     }, 1000);
   };
 
+  console.log(isPlayer1);
+
   return (
     <div
       ref={modalRef}
       onClick={handleModalClick}
-      className={styles.modalWrapper(isOpen, isJoining)}
+      className={styles.modalWrapper(isOpen, isJoining, isPlayer1)}
     >
       {isGameInitialized && game.winner ? (
         <div className={styles.modalContainer}>Winner is {winner!.color}</div>
@@ -75,7 +77,7 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
             <div className={styles.secondWrapper}>
               <GameCode game={game} tooltipText={tooltipText} />
               <div className={styles.infos}>
-                <span className={styles.white}>
+                <span className={styles.txtColor(!!isPlayer1)}>
                   {`you play ${isPlayer1 ? "red" : "yellow"} and it's ${
                     isYourTurn ? "your Turn" : "the opponent's Turn"
                   } `}
@@ -133,8 +135,10 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
 };
 
 const styles = {
-  white: css`
-    color: white;
+  txtColor: (isPlayer1: boolean) => css`
+    color: ${isPlayer1 !== undefined && isPlayer1 === false
+      ? "black"
+      : "white"} !important;
   `,
   infos: css`
     margin-left: auto;
@@ -164,8 +168,11 @@ const styles = {
     padding-top: 0;
     transition: height 0.5s, width 0.5s;
   `,
-  modalWrapper: (isOpen: boolean, isJoining: boolean) => css`
-    background-color: #1944a1;
+  modalWrapper: (
+    isOpen: boolean,
+    isJoining: boolean,
+    isPlayer1?: boolean
+  ) => css`
     box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
     border-radius: 0 0 20px 20px;
     position: absolute;
@@ -177,6 +184,11 @@ const styles = {
     border: 3px solid white;
     border-top: none;
     overflow: hidden;
+    background-color: ${isPlayer1 === undefined
+      ? "#1944a1"
+      : isPlayer1
+      ? "red"
+      : "yellow"};
     /* on hover, cursor */
     &:hover {
       cursor: ${!isOpen && "pointer"};
