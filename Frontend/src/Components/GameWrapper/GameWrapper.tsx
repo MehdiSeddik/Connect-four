@@ -9,6 +9,7 @@ export interface GameContextProps {
   isPlayer1?: boolean;
   isYourTurn?: boolean;
   onGameUpdate: (updated: Game) => void;
+  sendMessage: (message: string) => void;
 }
 
 export const gameContext = createContext<GameContextProps | undefined>(
@@ -22,7 +23,7 @@ const GameWrapper = ({ children }: Props) => {
   const [game, setGame] = useState<Game>();
   const [userId, setUserId] = useState<string | undefined>();
 
-  useWebSocket("ws://localhost:8899", {
+  const { sendMessage } = useWebSocket("ws://localhost:8899", {
     shouldReconnect: () => true,
     onMessage: (message: any) => {
       if (!message.data) {
@@ -43,6 +44,7 @@ const GameWrapper = ({ children }: Props) => {
   return (
     <gameContext.Provider
       value={{
+        sendMessage,
         game,
         onGameUpdate,
         userId,

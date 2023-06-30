@@ -5,7 +5,7 @@ import Preloader from "./Components/Preloader/Preloader.tsx";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <Preloader />
+    {/* <Preloader /> */}
     <App />
   </React.StrictMode>
 );

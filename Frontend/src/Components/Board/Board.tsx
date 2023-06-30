@@ -4,17 +4,22 @@ import { Token } from "../Token/Token";
 import { useState } from "react";
 import ColumnSelector from "../ColumnSelector/ColumnSelector";
 import { useGame } from "../../Hooks/useGame";
-import axios from "axios";
 export default function Board() {
   const [hoveredColumn, setHoveredColumn] = useState(0);
-  const { isPlayer1, game } = useGame();
+  const { isPlayer1, game, sendMessage } = useGame();
   const isGameInitialized = game && game.gameId;
 
   const handleColumnClick = async (column: number) => {
-    await axios.post("http://localhost:8899/game/drop", {
+    // await axios.post("http://localhost:8899/game/drop", {
+    //   column,
+    //   color: isPlayer1 ? "red" : "yellow",
+    // });
+    const json = JSON.stringify({
+      type: "drop",
       column,
       color: isPlayer1 ? "red" : "yellow",
     });
+    sendMessage(json);
   };
 
   return (
