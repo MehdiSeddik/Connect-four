@@ -10,6 +10,7 @@ const defaultBoard: Board = [
     { color: "none" },
     { color: "none" },
     { color: "none" },
+    { color: "none" },
   ], // row 0
   [
     { color: "none" },
@@ -222,12 +223,12 @@ export class GameInstance {
     return "none"; // No winner
   }
 
-  resetGame = () =>{
+  resetGame = () => {
 
   }
 
   dropPiece = (column: number, color: "yellow" | "red" | "none") => {
-    if(this.winner) {
+    if (this.winner) {
       return;
     }
     let row = 5;
@@ -235,9 +236,9 @@ export class GameInstance {
       row--;
     }
     // check if there is a winner
-    
-    this.gameBoard[row][column].color = color; 
-    
+
+    this.gameBoard[row][column].color = color;
+
     const winner = this.checkWinner();
     if (winner !== "none") {
       console.log("winner found");
