@@ -14,7 +14,7 @@ export default function ColumnSelector({
   const { game, isYourTurn } = useGame();
   const isGameInitialized = game && game.gameId;
   return (
-    <div id="gameBoard" className={styles.svgWrapper}>
+    <div id="gameBoard" className={styles.svgWrapper(isYourTurn)}>
       <div className={styles.tokens}>
         {isGameInitialized &&
           game.board?.map((row, rowIndex) => (
@@ -38,9 +38,11 @@ const styles = {
     position: absolute;
     top: -10px;
   `,
-  svgWrapper: css`
+  svgWrapper: (isYourTurn: boolean) => css`
     position: relative;
     z-index: 50;
+    /* if is your turn is false, block clicsk */
+    cursor: ${isYourTurn ? "pointer" : "not-allowed"};
   `,
   flex: css`
     display: flex;

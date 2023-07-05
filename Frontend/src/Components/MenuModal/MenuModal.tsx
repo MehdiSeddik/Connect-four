@@ -23,7 +23,7 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
   const timerValue = game ? Math.round((game.countDown * 100) / 30) : 0;
 
   const createGame = async () => {
-    const res = await axios.post("http://localhost:8899/game/new", {
+    const res = await axios.post("http://c4-backend.game-trip.fr:80/game/new", {
       player1Id: userId,
     });
     if (res.data && userId) {
@@ -33,7 +33,7 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
   };
 
   const joinGame = async (gameId: string) => {
-    const res = await axios.post("http://localhost:8899/game/join", {
+    const res = await axios.post("http://c4-backend.game-trip.fr:80/game/join", {
       gameId,
       player2Id: userId,
     });
@@ -78,9 +78,8 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
               <GameCode game={game} tooltipText={tooltipText} />
               <div className={styles.infos}>
                 <span className={styles.txtColor(!!isPlayer1)}>
-                  {`you play ${isPlayer1 ? "red" : "yellow"} and it's ${
-                    isYourTurn ? "your Turn" : "the opponent's Turn"
-                  } `}
+                  {`you play ${isPlayer1 ? "red" : "yellow"} and it's ${isYourTurn ? "your Turn" : "the opponent's Turn"
+                    } `}
                 </span>
               </div>
               {game.status === "playing" && (
@@ -187,8 +186,8 @@ const styles = {
     background-color: ${isPlayer1 === undefined
       ? "#1944a1"
       : isPlayer1
-      ? "red"
-      : "yellow"};
+        ? "red"
+        : "yellow"};
     /* on hover, cursor */
     &:hover {
       cursor: ${!isOpen && "pointer"};
