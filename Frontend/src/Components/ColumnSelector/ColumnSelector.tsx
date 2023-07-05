@@ -38,7 +38,7 @@ const styles = {
     position: absolute;
     top: -10px;
   `,
-  svgWrapper: (isYourTurn: boolean) => css`
+  svgWrapper: (isYourTurn?: boolean) => css`
     position: relative;
     z-index: 50;
     /* if is your turn is false, block clicsk */
