@@ -23,7 +23,7 @@ const GameWrapper = ({ children }: Props) => {
   const [game, setGame] = useState<Game>();
   const [userId, setUserId] = useState<string | undefined>();
 
-  const { sendMessage } = useWebSocket("ws://c4-backend.game-trip.fr:80", {
+  const { sendMessage } = useWebSocket("wss://c4-backend.game-trip.fr:80", {
     shouldReconnect: () => true,
     onMessage: (message: any) => {
       if (!message.data) {
