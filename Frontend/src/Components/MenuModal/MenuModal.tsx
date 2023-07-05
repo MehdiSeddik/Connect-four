@@ -23,7 +23,7 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
   const timerValue = game ? Math.round((game.countDown * 100) / 30) : 0;
 
   const createGame = async () => {
-    const res = await axios.post("https://c4-backend.game-trip.fr:80/game/new", {
+    const res = await axios.post("https://c4-backend.game-trip.fr/game/new", {
       player1Id: userId,
     });
     if (res.data && userId) {
@@ -33,7 +33,7 @@ export const MenuModal = ({ isOpen, onChange }: Props) => {
   };
 
   const joinGame = async (gameId: string) => {
-    const res = await axios.post("https://c4-backend.game-trip.fr:80/game/join", {
+    const res = await axios.post("https://c4-backend.game-trip.fr/game/join", {
       gameId,
       player2Id: userId,
     });
